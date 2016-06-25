@@ -6,5 +6,5 @@
   "httpotion": {:git, "https://github.com/myfreeweb/httpotion.git", "b67f02c9eb0dd285d4f03fce258018f03ce86e11", []},
   "ibrowse": {:hex, :ibrowse, "4.2.2", "b32b5bafcc77b7277eff030ed32e1acc3f610c64e9f6aea19822abcadf681b4b", [:rebar3], []},
   "jsx": {:hex, :jsx, "2.6.2", "213721e058da0587a4bce3cc8a00ff6684ced229c8f9223245c6ff2c88fbaa5a", [:mix, :rebar], []},
-  "nerves_firmware": {:git, "https://github.com/ghitchens/nerves_firmware.git", "a3801c3c4c9712b04e67d4e99309bca647b66244", [branch: "no_http"]},
+  "nerves_firmware": {:git, "https://github.com/nerves-project/nerves_firmware.git", "963d772e535180c42006ce44bb61432d09f52a76", []},
   "ranch": {:hex, :ranch, "1.2.1", "a6fb992c10f2187b46ffd17ce398ddf8a54f691b81768f9ef5f461ea7e28c762", [:make], []}}

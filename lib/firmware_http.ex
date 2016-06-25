@@ -13,13 +13,19 @@ defmodule Nerves.Firmware.HTTP do
 
   ## Configuration
   In your app's config.exs, you can change a number of the default settings
-  for Nerves.Firmware:
+  by setting keys on the `nerves_frirmware_http` application:
 
   | key          | default              | comments                            |
   |--------------|----------------------|-------------------------------------|
   | :port   | 8988                 |                                     |
   | :path   | "/firmware"          |                                     |
   | :stage_file | "/tmp/uploaded.fw"   | Firmware will be uploaded here before install, and deleted afterward |
+
+  So, for instance, in your config.exs, you might do:
+
+        config :nerves_firmware_http, port: 9999,
+                                      path: "/services/firmware",
+                                      stage_file: "/my_tmp/new.fw"
   """
   @http_port Application.get_env(:nerves_firmware_http, :port, 8988)
   @http_path Application.get_env(:nerves_firmware_http, :path, "/firmware")
