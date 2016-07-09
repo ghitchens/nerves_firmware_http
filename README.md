@@ -15,7 +15,7 @@ Not yet published in hex, so:
   1. Add nerves_firmware to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:nerves_firmware, github: "nerves-project/nerves_firmware_http"}]
+          [{:nerves_firmware_http, github: "nerves-project/nerves_firmware_http"}]
         end
 
   2. Ensure nerves_firmware is started before your application:
