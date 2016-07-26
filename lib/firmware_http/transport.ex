@@ -44,20 +44,20 @@ defmodule Nerves.Firmware.HTTP.Transport do
   Won't let you upload firmware on top of provisional (returns 403)
   """
   def upload_acceptor(req, state) do
-		Logger.info "request to receive firmware"
+	Logger.info "request to receive firmware"
     if Nerves.Firmware.allow_upgrade? do
       upload_and_apply_firmware_upgrade(req, state)
     else
       {:halt, reply_with(403, req), state}
-		end
+	end
   end
 
   # TODO:  Ideally we'd like to allow streaming directly to fwup, but its hard
   # due to limitations with ports and writing to fifo's from elixir
   # Right solution would be to get Porcelain fixed to avoid golang for goon.
   defp upload_and_apply_firmware_upgrade(req, state) do
-		Logger.info "receiving firmware"
-		File.open!(@stage_file, [:write], &(stream_fw &1, req))
+	Logger.info "receiving firmware"
+	File.open!(@stage_file, [:write], &(stream_fw &1, req))
     Logger.info "firmware received"
     response = case Nerves.Firmware.upgrade_and_finalize(@stage_file) do
       {:error, _reason} ->
@@ -65,7 +65,7 @@ defmodule Nerves.Firmware.HTTP.Transport do
       :ok ->
         case :cowboy_req.header("x-reboot", req) do
           {:undefined, _} ->  nil
-          {_, _} -> Nerves.Firmware.reboot
+          {_, _} -> Nerves.Firmware.reboot(:graceful) #Make sure erlinit.config is set to reboot on exit(default) for graceful reboot
         end
         {true, req, state}
     end
