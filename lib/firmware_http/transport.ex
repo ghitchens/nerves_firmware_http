@@ -65,7 +65,9 @@ defmodule Nerves.Firmware.HTTP.Transport do
       :ok ->
         case :cowboy_req.header("x-reboot", req) do
           {:undefined, _} ->  nil
-          {_, _} -> Nerves.Firmware.reboot
+          {_, _} ->
+            reply_with(200, req)
+            Nerves.Firmware.reboot
         end
         {true, req, state}
     end
