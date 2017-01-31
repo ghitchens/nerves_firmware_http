@@ -1,7 +1,7 @@
 defmodule Nerves.Firmware.HTTP.Mixfile do
     use Mix.Project
 
-    @version "0.2.0"
+    @version "0.3.0-dev"
 
     def project do
       [ app: :nerves_firmware_http,
