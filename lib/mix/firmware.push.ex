@@ -111,7 +111,7 @@ defmodule Mix.Tasks.Firmware.Push do
     level = Logger.level
     Logger.configure(level: :error)
     Application.stop(:mix)
-    System.put_env("NERVES_TARGET", target)
+    System.put_env("MIX_TARGET", target)
     Application.start(:mix)
     Logger.configure(level: level)
     Mix.Project.in_project(project, File.cwd!, fn(_module) ->
