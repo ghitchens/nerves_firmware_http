@@ -1,6 +1,13 @@
 # ChangeLog
 
-## 0.3.0-dev
+## 0.3.1
+
+* Bug Fixes
+  * removed all compile-time configuration, all runtime now
+  * elixir 1.4 clean build
+  * cleanup of mix dependencies (now ref hex packages)
+
+## 0.3.0
 
 * Bug Fixes
   * fixed issue where response would not be sent prior to rebooting the device
