@@ -22,8 +22,8 @@ defmodule Nerves.Firmware.HTTP.Test do
     resp = HTTPotion.get @http_uri, headers: ["Accept": "application/json"]
     headers = resp.headers.hdrs
     assert resp.status_code == 200
-    assert {:ok, "Cowboy"} = Keyword.fetch(headers, :server)
-    assert {:ok, "application/json"} = Keyword.fetch(headers, :'content-type')
+    assert "Cowboy" = headers["server"]
+    assert "application/json" = headers["content-type"]
   end
 
   test "returning proper status before and after firmware upgrade" do
@@ -31,7 +31,7 @@ defmodule Nerves.Firmware.HTTP.Test do
     # create the low level firmware file
     assert :ok == Nerves.Firmware.Fwup.apply(fw, @device, :complete)
     # now, test the firmware
-    assert get_firmware_state[:status] == "active"
+    assert get_firmware_state()[:status] == "active"
     #now, try installing firmware upgrade
     metrics1 = read_firmware_metrics(@device)
     assert metrics1 == read_firmware_metrics(@device)
@@ -39,7 +39,7 @@ defmodule Nerves.Firmware.HTTP.Test do
     metrics2 = read_firmware_metrics(@device)
     assert metrics1 != metrics2
     # now that we've update firmware, we should be in await_restart state
-    assert get_firmware_state[:status] == "await_restart"
+    assert get_firmware_state()[:status] == "await_restart"
     # this should fail with 403 since firmware is not yet rebooted
     assert 403 = send_firmware(fw)
     metrics3 = read_firmware_metrics(@device)
@@ -78,8 +78,7 @@ defmodule Nerves.Firmware.HTTP.Test do
   end
 
   defp json_to_term(resp) do
-    content_type = Keyword.fetch(resp.headers.hdrs, :'content-type')
-    assert {:ok, "application/json"} == content_type
+    assert "application/json" == resp.headers.hdrs["content-type"]
     {:ok, term} = JSX.decode(resp.body, [{:labels, :atom}])
     Enum.into term, []
   end

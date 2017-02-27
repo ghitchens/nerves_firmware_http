@@ -27,13 +27,12 @@ defmodule Nerves.Firmware.HTTP do
                                       path: "/services/firmware",
                                       stage_file: "/my_tmp/new.fw"
   """
-  @http_port Application.get_env(:nerves_firmware_http, :port, 8988)
-  @http_path Application.get_env(:nerves_firmware_http, :path, "/firmware")
-
   @doc "Application start callback"
   @spec start(atom, term) :: {:ok, pid} | {:error, String.t}
   def start(_type, _args) do
-    dispatch = :cowboy_router.compile [{:_,[{@http_path, Nerves.Firmware.HTTP.Transport, []}]}]
-    :cowboy.start_http(__MODULE__, 10, [port: @http_port], [env: [dispatch: dispatch]])
+    port = Application.get_env(:nerves_firmware_http, :port, 8988)
+    path = Application.get_env(:nerves_firmware_http, :path, "/firmware")
+    dispatch = :cowboy_router.compile [{:_,[{path, Nerves.Firmware.HTTP.Transport, []}]}]
+    :cowboy.start_http(__MODULE__, 10, [port: port], [env: [dispatch: dispatch]])
   end
 end

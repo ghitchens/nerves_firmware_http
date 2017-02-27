@@ -5,8 +5,6 @@ defmodule Nerves.Firmware.HTTP.Transport do
   @max_upload_chunk 100000        # 100K max chunks to keep memory reasonable
   @max_upload_size  100000000     # 100M max file to avoid using all of flash
 
-  @stage_file Application.get_env(:nerves_firmware_http, :stage_file, "/tmp/uploaded.fw")
-
   require Logger
 
   def init(_transport, _req, _state) do
@@ -56,10 +54,13 @@ defmodule Nerves.Firmware.HTTP.Transport do
   # due to limitations with ports and writing to fifo's from elixir
   # Right solution would be to get Porcelain fixed to avoid golang for goon.
   defp upload_and_apply_firmware_upgrade(req, state) do
-		Logger.info "receiving firmware"
-		File.open!(@stage_file, [:write], &(stream_fw &1, req))
+    stage_file  = Application.get_env(:nerves_firmware_http, :stage_file,
+                                      "/tmp/uploaded.fw")
+    Logger.info "receiving firmware"
+    File.open!(stage_file, [:write], &(stream_fw &1, req))
     Logger.info "firmware received"
-    response = case Nerves.Firmware.upgrade_and_finalize(@stage_file) do
+
+    response = case Nerves.Firmware.upgrade_and_finalize(stage_file) do
       {:error, _reason} ->
         {:halt, reply_with(400, req), state}
       :ok ->
@@ -71,7 +72,7 @@ defmodule Nerves.Firmware.HTTP.Transport do
         end
         {true, req, state}
     end
-    File.rm @stage_file
+    File.rm stage_file
     response
   end
 
