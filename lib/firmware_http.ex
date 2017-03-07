@@ -28,11 +28,23 @@ defmodule Nerves.Firmware.HTTP do
                                       stage_file: "/my_tmp/new.fw"
   """
   @doc "Application start callback"
+  @app :nerves_firmware_http
   @spec start(atom, term) :: {:ok, pid} | {:error, String.t}
   def start(_type, _args) do
     port = Application.get_env(:nerves_firmware_http, :port, 8988)
     path = Application.get_env(:nerves_firmware_http, :path, "/firmware")
     dispatch = :cowboy_router.compile [{:_,[{path, Nerves.Firmware.HTTP.Transport, []}]}]
-    :cowboy.start_http(__MODULE__, 10, [port: port], [env: [dispatch: dispatch]])
+    case Application.get_env(@app, :tls, false) do
+      false ->
+        :cowboy.start_http(__MODULE__, 10, [port: port], [env: [dispatch: dispatch]])
+      true ->
+	      priv_dir = :code.priv_dir("")
+        :cowboy.start_tls(:https, 10, [
+          port: port,
+          cacertfile: priv_dir ++ '/tls/ca.crt',
+          certfile: priv_dir ++ '/tls/device.crt',
+          keyfile: priv_dir ++ '/tls/server.key',
+        ], [env: [dispatch: dispatch]])
+    end
   end
 end
