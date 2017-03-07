@@ -31,8 +31,8 @@ defmodule Nerves.Firmware.HTTP do
   @app :nerves_firmware_http
   @spec start(atom, term) :: {:ok, pid} | {:error, String.t}
   def start(_type, _args) do
-    port = Application.get_env(:nerves_firmware_http, :port, 8988)
-    path = Application.get_env(:nerves_firmware_http, :path, "/firmware")
+    port = Application.get_env(@app, :port, 8988)
+    path = Application.get_env(@app, :path, "/firmware")
     dispatch = :cowboy_router.compile [{:_,[{path, Nerves.Firmware.HTTP.Transport, []}]}]
     case Application.get_env(@app, :tls, false) do
       false ->
@@ -43,7 +43,7 @@ defmodule Nerves.Firmware.HTTP do
           port: port,
           cacertfile: priv_dir ++ '/tls/ca.crt',
           certfile: priv_dir ++ '/tls/device.crt',
-          keyfile: priv_dir ++ '/tls/server.key',
+          keyfile: priv_dir ++ '/tls/device.key',
         ], [env: [dispatch: dispatch]])
     end
   end

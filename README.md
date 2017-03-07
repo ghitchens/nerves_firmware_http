@@ -31,14 +31,30 @@ That's all.  Your firmware is now queriable and updatable over the network.
 In your app's config.exs, you can change a number of the default settings
 for Nerves.Firmware.HTTP:
 
-| key          | default              | comments                            |
-|--------------|----------------------|-------------------------------------|
-| :http_port   | 8988                 |                                     |
-| :http_path   | "/firmware"          |                                     |
-| :upload_path | "/tmp/uploaded.fw"   | Firmware will be uploaded here before install, and deleted afterward |
+| key          | default            | comments                                    |
+|--------------|--------------------|---------------------------------------------|
+| :port        | 8988               | port on which http is served                |
+| :path        | "/firmware"        | http path at which services are offered     |
+| :upload_path | "/tmp/uploaded.fw" | Firmware upload staging area                |
+| :tls         | false              | If true, use HTTP over TLS                  |
+| :ca_cert     | /tls/ca.crt        | Path of TLS certificate authority .crt file |
+| :dev_cert    | /tls/device.crt    | Path of TLS device .crt file                |
+| :dev_key     | /tls/device.key    | Path of TLS private key (.key) file         |
+| :auth        | none               | See auth section for usage                  |
+| :auth_realm  | "Nerves FIrmware"  | Authentication realm (for HTTP)              |
 
+## Security and Authentication 
 
-### Some `CURL`ing excercises
+Nerves.Firmware.HTTP provides a few different security models.
+
+### Values for HTTP AUTH
+
+:none - No authentication/authorization required (open API)
+:deny - Deny all requests (disable API)
+{:pwlist, [...]} - A keyword list of usernames and passwords
+{:authorized_keys, authkeyfile}
+
+## Some `CURL`ing excercises
 
 Getting Firmware Info:
 
