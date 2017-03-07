@@ -1,7 +1,8 @@
 defmodule Nerves.Firmware.HTTP.Transport do
 
   @moduledoc false
-
+  @app :nerves_firmware_http
+  @default_realm "Nerves Firmware"
   @max_upload_chunk 100000        # 100K max chunks to keep memory reasonable
   @max_upload_size  100000000     # 100M max file to avoid using all of flash
 
@@ -13,6 +14,16 @@ defmodule Nerves.Firmware.HTTP.Transport do
 
   def rest_init(req, handler_opts) do
     {:ok, req, handler_opts}
+  end
+
+  def is_authorized(req, state) do
+    auth = Application.get_env(@app, :auth, :none)
+    if authorized?(auth, req) do
+      {true, req, state}
+    else
+      realm = Application.get_env(@app, :auth_realm, @default_realm)
+      {{false, "Basic realm=\"#{realm}\""}, req, state}
+    end
   end
 
   def allowed_methods(req, state) do
@@ -49,6 +60,32 @@ defmodule Nerves.Firmware.HTTP.Transport do
       {:halt, reply_with(403, req), state}
 		end
   end
+
+  ## security methods
+
+  defp authorized?(:none, _req), do: true
+  defp authorized?(:deny, _req), do: false
+  defp authorized?({:password, pwlist}, req) do
+    case :cowboy_req.parse_header("authorization", req) do
+      {:ok, {"basic", {user, pass}}, _req2} ->
+        pwlist[:erlang.binary_to_atom(user, :latin1)] == pass
+      other ->
+        false
+    end
+  end
+  defp authorized?({:public_key, pubkey_options}, req) do
+    case :cowboy_req.parse_header("authorization", req) do
+      {:ok, {"basic", {id, key}}, _req2} ->
+        authorized_key?(id, key, pubkey_options, req)
+      other -> false
+    end
+  end
+
+  # TODO: Need to implement check for public key -- using rsa pub/priv key
+  # crypto.
+  defp authorized_key?(_id, _key, _opts, _req), do: false
+
+  ## upload helpers
 
   # TODO:  Ideally we'd like to allow streaming directly to fwup, but its hard
   # due to limitations with ports and writing to fifo's from elixir
