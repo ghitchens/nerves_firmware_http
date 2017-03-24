@@ -1,5 +1,10 @@
 # ChangeLog
 
+## 0.3.2
+
+* Bug Fixes
+  * Fixed issue with --target not resolving to the proper path in nerves 0.5.x
+
 ## 0.3.1
 
 * Bug Fixes
