@@ -118,7 +118,11 @@ defmodule Mix.Tasks.Firmware.Push do
 
       target = Mix.Project.config[:target]
       app = Mix.Project.config[:app]
-      (Mix.Project.config[:images_path] || "_images/#{target}/#{app}.fw")
+      images_path =
+        (Mix.Project.config[:images_path] ||
+        Path.join([Mix.Project.build_path, "nerves", "images"]) ||
+        "_images/#{target}")
+      image = Path.join([images_path, "#{app}.fw"]) 
       |> Path.expand
     end)
   end
