@@ -1,5 +1,8 @@
 defmodule Nerves.Firmware.HTTP.Utils do
   alias Nerves.Firmware.Fwup
+  require Logger
+
+  @chunk 1000000
 
   def fw_update(conn) do
     device = get_header(conn, "x-firmware-device")
@@ -7,7 +10,7 @@ defmodule Nerves.Firmware.HTTP.Utils do
     {:ok, pid} = Fwup.start_link([device: device, task: task])
     resp =
       conn
-      |> Plug.Conn.read_body
+      |> Plug.Conn.read_body(length: @chunk)
       |> fw_stream(pid)
     if Process.alive?(pid) do
       Nerves.Firmware.Fwup.stop(pid)
@@ -16,16 +19,17 @@ defmodule Nerves.Firmware.HTTP.Utils do
   end
 
   def fw_stream({:more, chunk, conn}, pid) do
+    Logger.debug "Chunk Size: #{byte_size(chunk)}"
     Fwup.stream_chunk(pid, chunk)
-
     conn
-    |> Plug.Conn.read_body()
+    |> Plug.Conn.read_body(length: @chunk)
     |> fw_stream(pid)
   end
   def fw_stream({:error, _} = error, _pid) do
     error
   end
   def fw_stream({:ok, chunk, _conn}, pid) do
+    Logger.debug "Chunk Size: #{byte_size(chunk)}"
     Fwup.stream_chunk(pid, chunk, await: true)
   end
 
