@@ -27,12 +27,13 @@ defmodule Mix.Tasks.Firmware.Push do
   pass `MIX_TARGET` or `NERVES_TARGET` in your env
   """
 
-  @switches [firmware: :string, reboot: :boolean, target: :string]
+  @switches [firmware: :string, reboot: :string, target: :string, task: :string, device: :string]
   @chunk 10_000
   @progress_steps 25
 
   def run([ip | argv]) do
     {opts, _, _} = OptionParser.parse(argv, switches: @switches)
+    IO.inspect opts
     body =
       firmware(opts)
       |> File.read!
@@ -50,12 +51,18 @@ defmodule Mix.Tasks.Firmware.Push do
     end
 
     reboot = opts[:reboot] || true
+    task = opts[:task] || "upgrade"
+    device = opts[:device] || ""
     start_httpc()
     url = "http://#{ip}:8988/firmware" |> String.to_char_list
     http_opts = [relaxed: true, autoredirect: true] #++ Nerves.Utils.Proxy.config(url)
     opts = [body_format: :binary]
 
-    headers = %{'x-reboot' => '#{reboot}', 'content-length' => body_len} |> Map.to_list
+    headers = %{
+      'x-firmware-reboot' => '#{reboot}',
+      'x-firmware-task' => '#{task}',
+      'x-firmware-device' => '#{device}',
+      'content-length' => body_len} |> Map.to_list
     :httpc.request(:post, {url, headers, 'application/x-firmware', {body, 0}}, http_opts, opts, :nerves_firmware)
     |> response
   end
@@ -122,7 +129,7 @@ defmodule Mix.Tasks.Firmware.Push do
         (Mix.Project.config[:images_path] ||
         Path.join([Mix.Project.build_path, "nerves", "images"]) ||
         "_images/#{target}")
-      image = Path.join([images_path, "#{app}.fw"]) 
+      Path.join([images_path, "#{app}.fw"])
       |> Path.expand
     end)
   end
