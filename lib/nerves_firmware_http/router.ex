@@ -43,7 +43,7 @@ defmodule Nerves.Firmware.HTTP.Router do
           send_resp(conn, 200, "OK")
         end
       {:error, error} ->
-        send_resp(conn, 500, error)
+        send_resp(conn, 500, inspect(error))
     end
   end
 

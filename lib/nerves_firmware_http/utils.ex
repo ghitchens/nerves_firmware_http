@@ -13,6 +13,9 @@ defmodule Nerves.Firmware.HTTP.Utils do
     |> Plug.Conn.read_body()
     |> fw_stream(pid)
   end
+  def fw_stream({:error, _} = error, pid) do
+    error
+  end
   def fw_stream({:ok, chunk, conn}, pid) do
     Fwup.stream_chunk(pid, chunk, await: true)
   end
