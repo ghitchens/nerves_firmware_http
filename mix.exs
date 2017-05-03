@@ -17,8 +17,8 @@ defmodule Nerves.Firmware.HTTP.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :nerves_firmware, :cowboy, :exjsx],
-     mod: {Nerves.Firmware.HTTP, []}]
+    [extra_applications: [:logger],
+     mod: {Nerves.Firmware.HTTP.Application, []}]
   end
 
   defp docs do
@@ -29,16 +29,17 @@ defmodule Nerves.Firmware.HTTP.Mixfile do
   end
 
   defp package do
-    [maintainers: ["Garth Hitchens"],
+    [maintainers: ["Justin Schneck", "Garth Hitchens"],
      licenses: ["Apache-2.0"],
-     links: %{github: "https://github.com/nerves-project/nerves_firmware_http"},
-     files: ~w(lib config) ++ ~w(README.md CHANGELOG.md LICENSE mix.exs)]
+     links: %{github: "https://github.com/nerves-project/nerves_firmware_http"}]
   end
 
   defp deps do
-    [{:nerves_firmware, "~> 0.3"},
+    [#{:nerves_firmware, "~> 0.3"},
+     {:nerves_firmware, github: "nerves-project/nerves_firmware", branch: "stream"},
+     {:plug, "~> 1.0"},
      {:cowboy, "~> 1.0"},
-     {:exjsx, "~> 4.0"},
+     {:exjsx, "~> 4.0", optional: true},
      {:ex_doc, "~> 0.15", only: :dev},
      {:httpotion, "~> 3.0", only: :test}]
   end
