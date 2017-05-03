@@ -3,7 +3,8 @@ defmodule Nerves.Firmware.HTTP.Router do
   import Nerves.Firmware.HTTP.Utils
   require Logger
 
-  @cowboy_opts [:ip, :port, :acceptors, :max_connections, :dispatch, :ref, :compress, :timeout, :protocol_options]
+  @cowboy_opts [:ip, :port, :acceptors, :max_connections, :dispatch, :ref,
+                :compress, :timeout, :protocol_options]
 
   plug :accepts
   plug :match
@@ -19,7 +20,7 @@ defmodule Nerves.Firmware.HTTP.Router do
     |> Keyword.take(@cowboy_opts)
     |> Keyword.put_new(:port, 8988)
     |> Keyword.put_new(:acceptors, 10)
-    |> Keyword.put_new(:timeout, 20_000)
+    |> Keyword.put_new(:timeout, 60_000)
   end
 
   def accepts(conn, _) do
@@ -35,24 +36,16 @@ defmodule Nerves.Firmware.HTTP.Router do
   match "firmware", via: [:put, :post] do
     case fw_update(conn) do
       :ok ->
-        if get_header(conn, "x-firmware-reboot") == "true" do
-          send_resp(conn, 200, "OK")
-          Nerves.Firmware.reboot
-          conn
-        else
-          send_resp(conn, 200, "OK")
-        end
+        conn
+        |> send_resp(200, "OK")
+        |> handle_reboot
       {:error, error} ->
         send_resp(conn, 500, inspect(error))
     end
   end
 
   get "firmware" do
-    resp =
-      Nerves.Firmware.state
-      |> encode_json
-    conn
-    |> send_resp(200, resp)
+    send_resp(conn, 200, encode_json(Nerves.Firmware.state))
   end
 
   match _ do
