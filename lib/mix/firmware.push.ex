@@ -96,7 +96,6 @@ defmodule Mix.Tasks.Firmware.Push do
 
   #find the firmware
 
-
   defp firmware(opts) do
     if fw = opts[:firmware] do
       fw |> Path.expand

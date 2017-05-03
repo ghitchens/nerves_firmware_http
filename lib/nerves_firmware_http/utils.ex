@@ -9,7 +9,9 @@ defmodule Nerves.Firmware.HTTP.Utils do
       conn
       |> Plug.Conn.read_body
       |> fw_stream(pid)
-    Nerves.Firmware.Fwup.stop(pid)
+    if Process.alive?(pid) do
+      Nerves.Firmware.Fwup.stop(pid)
+    end
     resp
   end
 
@@ -20,13 +22,11 @@ defmodule Nerves.Firmware.HTTP.Utils do
     |> Plug.Conn.read_body()
     |> fw_stream(pid)
   end
-  def fw_stream({:error, _} = error, pid) do
-    Nerves.Firmware.Fwup.stop(pid)
+  def fw_stream({:error, _} = error, _pid) do
     error
   end
-  def fw_stream({:ok, chunk, conn}, pid) do
+  def fw_stream({:ok, chunk, _conn}, pid) do
     Fwup.stream_chunk(pid, chunk, await: true)
-    Nerves.Firmware.Fwup.stop(pid)
   end
 
   def encode_json(data) do
