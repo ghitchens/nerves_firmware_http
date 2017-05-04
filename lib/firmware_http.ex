@@ -22,6 +22,7 @@ defmodule Nerves.Firmware.HTTP do
   | :stage_file | "/tmp/uploaded.fw"   | Firmware will be uploaded here before install, and deleted afterward |
   | :json_provider | JSX          |
   | :json_opts     | []           | 
+  | :timeout       | 120000       |
 
   So, for instance, in your config.exs, you might do:
 
@@ -30,13 +31,15 @@ defmodule Nerves.Firmware.HTTP do
                                       stage_file: "/my_tmp/new.fw"
                                       json_provider: Poison,
                                       json_opts: [space: 1, indent: 2]
+                                      timeout: 240_000
   """
   @doc "Application start callback"
   @spec start(atom, term) :: {:ok, pid} | {:error, String.t}
   def start(_type, _args) do
     port = Application.get_env(:nerves_firmware_http, :port, 8988)
     path = Application.get_env(:nerves_firmware_http, :path, "/firmware")
+    timeout = Application.get_env(:nerves_firmware_http, :timeout, 120_000)
     dispatch = :cowboy_router.compile [{:_,[{path, Nerves.Firmware.HTTP.Transport, []}]}]
-    :cowboy.start_http(__MODULE__, 10, [port: port], [env: [dispatch: dispatch]])
+    :cowboy.start_http(__MODULE__, 10, [port: port], [env: [dispatch: dispatch], timeout: timeout])
   end
 end
