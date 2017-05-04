@@ -36,7 +36,7 @@ defmodule Nerves.Firmware.HTTP.Mixfile do
   end
 
   defp deps do
-    [{:nerves_firmware, github: "nerves-project/nerves_firmware", branch: "finalize"},
+    [{:nerves_firmware, github: "nerves-project/nerves_firmware"},
      {:cowboy, "~> 1.0"},
      {:exjsx, "~> 4.0"},
      {:ex_doc, "~> 0.15", only: :dev},
