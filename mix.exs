@@ -38,7 +38,7 @@ defmodule Nerves.Firmware.HTTP.Mixfile do
   defp deps do
     [{:nerves_firmware, "~> 0.3"},
      {:cowboy, "~> 1.0"},
-     {:exjsx, "~> 4.0"},
+     {:exjsx, "~> 4.0", optional: true},
      {:ex_doc, "~> 0.15", only: :dev},
      {:httpotion, "~> 3.0", only: :test}]
   end
