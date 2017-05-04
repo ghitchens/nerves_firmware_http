@@ -28,9 +28,11 @@ defmodule Nerves.Firmware.HTTP.Transport do
   end
 
   def json_provider(req, state) do
+    mod = Application.get_env(:nerves_firmware_http, :json_provider, JSX)
+    opts = Application.get_env(:nerves_firmware_http, :json_opts, [])
     {:ok, body} =
       Nerves.Firmware.state
-      |> JSX.encode(space: 1, indent: 2)
+      |> mod.encode(opts)
     { body <> "\n", req, state}
   end
 
