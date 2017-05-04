@@ -1,5 +1,12 @@
 # ChangeLog
 
+## 0.4.0
+
+* New Features
+  * stream firmware to nerves_firmware 0.4
+  * allow timeout for requests to be configurable
+  * allow custom JSON library to be used as well as custom encode opts
+
 ## 0.3.2
 
 * Bug Fixes
