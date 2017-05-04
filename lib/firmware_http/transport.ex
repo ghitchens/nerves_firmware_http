@@ -2,9 +2,10 @@ defmodule Nerves.Firmware.HTTP.Transport do
 
   @moduledoc false
 
-  @max_upload_chunk 100000        # 100K max chunks to keep memory reasonable
-  @max_upload_size  100000000     # 100M max file to avoid using all of flash
+  @max_upload_chunk 102400        # 100K max chunks to keep memory reasonable
+  @max_upload_size  4294967296     # 4Gb max file
 
+  alias Nerves.Firmware.Fwup
   require Logger
 
   def init(_transport, _req, _state) do
@@ -54,26 +55,19 @@ defmodule Nerves.Firmware.HTTP.Transport do
   # due to limitations with ports and writing to fifo's from elixir
   # Right solution would be to get Porcelain fixed to avoid golang for goon.
   defp upload_and_apply_firmware_upgrade(req, state) do
-    stage_file  = Application.get_env(:nerves_firmware_http, :stage_file,
-                                      "/tmp/uploaded.fw")
     Logger.info "receiving firmware"
-    File.open!(stage_file, [:write], &(stream_fw &1, req))
+    {:ok, pid} = Fwup.start_link()
+    stream_fw(pid, req)
+    if Process.alive?(pid), do: Fwup.stop(pid)
     Logger.info "firmware received"
-
-    response = case Nerves.Firmware.upgrade_and_finalize(stage_file) do
-      {:error, _reason} ->
-        {:halt, reply_with(400, req), state}
-      :ok ->
-        case :cowboy_req.header("x-reboot", req) do
-          {:undefined, _} ->  nil
-          {_, _} ->
-            reply_with(200, req)
-            Nerves.Firmware.reboot
-        end
-        {true, req, state}
+    Nerves.Firmware.finalize()
+    case :cowboy_req.header("x-reboot", req) do
+      {:undefined, _} ->  nil
+      {_, _} ->
+        reply_with(200, req)
+        Nerves.Firmware.reboot
     end
-    File.rm stage_file
-    response
+    {true, req, state}
   end
 
   # helper to return errors to requests from cowboy more easily
@@ -83,17 +77,17 @@ defmodule Nerves.Firmware.HTTP.Transport do
   end
 
   # copy from a cowboy req into a IO.Stream
-  defp stream_fw(f, req, count \\ 0) do
+  defp stream_fw(pid, req, count \\ 0) do
     #  send an event about (bytes_uploaded: count)
     if count > @max_upload_size do
       {:error, :too_large}
     else
       case :cowboy_req.body(req, [:length, @max_upload_chunk]) do
         {:more, chunk, new_req} ->
-          :ok = IO.binwrite f, chunk
-          stream_fw(f, new_req, (count + byte_size(chunk)))
+          Fwup.stream_chunk(pid, chunk)
+          stream_fw(pid, new_req, (count + byte_size(chunk)))
         {:ok, chunk, new_req} ->
-          :ok = IO.binwrite f, chunk
+          Fwup.stream_chunk(pid, chunk, await: true)
           {:done, new_req}
       end
     end
