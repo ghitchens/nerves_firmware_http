@@ -28,14 +28,27 @@ That's all.  Your firmware is now queriable and updatable over the network.
 
 ## Configuration
 
+## Configuration
 In your app's config.exs, you can change a number of the default settings
-for Nerves.Firmware.HTTP:
+by setting keys on the `nerves_frirmware_http` application:
 
 | key          | default              | comments                            |
 |--------------|----------------------|-------------------------------------|
-| :http_port   | 8988                 |                                     |
-| :http_path   | "/firmware"          |                                     |
-| :upload_path | "/tmp/uploaded.fw"   | Firmware will be uploaded here before install, and deleted afterward |
+| :port   | 8988                 |                                     |
+| :path   | "/firmware"          |                                     |
+| :stage_file | "/tmp/uploaded.fw"   | Firmware will be uploaded here before install, and deleted afterward |
+| :json_provider | JSX          |
+| :json_opts     | []           |
+| :timeout       | 120000       |
+
+So, for instance, in your config.exs, you might do:
+
+      config :nerves_firmware_http, port: 9999,
+                                    path: "/services/firmware",
+                                    stage_file: "/my_tmp/new.fw"
+                                    json_provider: Poison,
+                                    json_opts: [space: 1, indent: 2]
+                                    timeout: 240_000
 
 
 ### Some `CURL`ing excercises
@@ -47,4 +60,3 @@ Getting Firmware Info:
 Updating Firmware and Reboot:
 
     curl -T my_firmware.fw "http://my_ip:8988/firmware" -H "Content-Type: application/x-firmware" -H "X-Reboot: true"
-

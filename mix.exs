@@ -1,7 +1,7 @@
 defmodule Nerves.Firmware.HTTP.Mixfile do
   use Mix.Project
 
-  @version "0.3.2"
+  @version "0.4.0"
 
   def project do
     [app: :nerves_firmware_http,
@@ -29,14 +29,14 @@ defmodule Nerves.Firmware.HTTP.Mixfile do
   end
 
   defp package do
-    [maintainers: ["Garth Hitchens"],
+    [maintainers: ["Garth Hitchens", "Justin Schneck"],
      licenses: ["Apache-2.0"],
      links: %{github: "https://github.com/nerves-project/nerves_firmware_http"},
      files: ~w(lib config) ++ ~w(README.md CHANGELOG.md LICENSE mix.exs)]
   end
 
   defp deps do
-    [{:nerves_firmware, github: "nerves-project/nerves_firmware"},
+    [{:nerves_firmware, "~> 0.4"},
      {:cowboy, "~> 1.0"},
      {:exjsx, "~> 4.0", optional: true},
      {:ex_doc, "~> 0.15", only: :dev},
