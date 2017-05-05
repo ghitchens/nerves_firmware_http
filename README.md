@@ -10,46 +10,62 @@ on which this module depends.
 
 ## Installation/Usage
 
-Not yet published in hex, so:
+Add nerves_firmware to your list of dependencies in `mix.exs` and a json library,
+by default you can use exjsx:
+```elixir
+  def deps do
+    [{:nerves_firmware_http, "~> 0.4"},
+     {:exjsx, "~> 4.0"}]
+  end
+```
 
-  1. Add nerves_firmware to your list of dependencies in `mix.exs`:
+### Using a Different JSON Provider
 
-          def deps do
-            [{:nerves_firmware_http, github: "nerves-project/nerves_firmware_http"}]
-          end
+To use a different JSON provider, simply specify one in your deps:
+```elixir
+  def deps do
+    [{:nerves_firmware_http, "~> 0.4"},
+     {:poison, "~> 3.1"}]
+  end
+```
+And pass the module in your config
 
-  2. Ensure nerves_firmware is started before your application:
+```elixir
+  config :nerves_firmware_http,
+    json_provider: Poison,
+    json_opts: []
+```
 
-          def application do
-            [applications: [:nerves_firmware_http]]
-          end
 
 That's all. Your firmware is now queriable and updatable over the network.
-
-
 
 ## Configuration
 In your app's config.exs, you can change a number of the default settings
 by setting keys on the `nerves_frirmware_http` application:
 
-| key          | default              | comments                            |
-|--------------|----------------------|-------------------------------------|
-| :port   | 8988                 |                                     |
-| :path   | "/firmware"          |                                     |
-| :stage_file | "/tmp/uploaded.fw"   | Firmware will be uploaded here before install, and deleted afterward |
-| :json_provider | JSX          |
-| :json_opts     | []           |
-| :timeout       | 120000       |
+| key            | default              |
+|----------------|----------------------|
+| :port          | 8988                 |
+| :path          | "/firmware"          |
+| :json_provider | JSX                  |
+| :json_opts     | []                   |
+| :timeout       | 120000               |
 
 So, for instance, in your config.exs, you might do:
 
-      config :nerves_firmware_http, port: 9999,
-                                    path: "/services/firmware",
-                                    stage_file: "/my_tmp/new.fw"
-                                    json_provider: Poison,
-                                    json_opts: [space: 1, indent: 2]
-                                    timeout: 240_000
+```elixir
+  config :nerves_firmware_http,
+    port: 9999,
+    path: "/services/firmware",
+    json_provider: Poison,
+    json_opts: [space: 1, indent: 2]
+    timeout: 240_000
+```
+## Using Firmware.Push
 
+You can stream the .fw files over the network to a device by using the nerves_firmware_http package. You can specify a .fw file directly, or let mix figure it our for you based on your target.
+
+`mix firmware.push 192.168.1.100 --target rpi0`
 
 ### Some `CURL`ing excercises
 
