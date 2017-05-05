@@ -1,5 +1,11 @@
 # ChangeLog
 
+## 0.4.1
+
+* Bug Fixes
+  * update applications list to autogen
+  * properly indent code and fix spelling errors in README
+
 ## 0.4.0
 
 * New Features

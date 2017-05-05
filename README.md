@@ -10,27 +10,26 @@ on which this module depends.
 
 ## Installation/Usage
 
-Not yet published in hex, so:
+It's available in hex, so:
 
-  1. Add nerves_firmware to your list of dependencies in `mix.exs`:
+  1. Add nerves_firmware_http to your list of dependencies in `mix.exs`:
 
           def deps do
-            [{:nerves_firmware_http, github: "nerves-project/nerves_firmware_http"}]
+            [{:nerves_firmware_http, "~> 0.4"}]
           end
 
-  2. Ensure nerves_firmware is started before your application:
+  2. Ensure nerves_firmware_http is started before your application:
 
           def application do
             [applications: [:nerves_firmware_http]]
           end
 
-That's all. Your firmware is now queriable and updatable over the network.
-
-
+That's all. Your firmware is now queryable and updatable over the network.
 
 ## Configuration
+
 In your app's config.exs, you can change a number of the default settings
-by setting keys on the `nerves_frirmware_http` application:
+by setting keys on the `nerves_firmware_http` application:
 
 | key          | default              | comments                            |
 |--------------|----------------------|-------------------------------------|
@@ -51,7 +50,7 @@ So, for instance, in your config.exs, you might do:
                                     timeout: 240_000
 
 
-### Some `CURL`ing excercises
+## Excercising the REST API with `curl`
 
 Getting Firmware Info:
 
