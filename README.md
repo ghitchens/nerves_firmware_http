@@ -14,19 +14,19 @@ Not yet published in hex, so:
 
   1. Add nerves_firmware to your list of dependencies in `mix.exs`:
 
-        def deps do
-          [{:nerves_firmware_http, github: "nerves-project/nerves_firmware_http"}]
-        end
+          def deps do
+            [{:nerves_firmware_http, github: "nerves-project/nerves_firmware_http"}]
+          end
 
   2. Ensure nerves_firmware is started before your application:
 
-        def application do
-          [applications: [:nerves_firmware_http]]
-        end
+          def application do
+            [applications: [:nerves_firmware_http]]
+          end
 
-That's all.  Your firmware is now queriable and updatable over the network.
+That's all. Your firmware is now queriable and updatable over the network.
 
-## Configuration
+
 
 ## Configuration
 In your app's config.exs, you can change a number of the default settings
