@@ -1,7 +1,7 @@
 defmodule Nerves.Firmware.HTTP.Mixfile do
   use Mix.Project
 
-  @version "0.4.0"
+  @version "0.4.1"
 
   def project do
     [app: :nerves_firmware_http,
@@ -17,7 +17,7 @@ defmodule Nerves.Firmware.HTTP.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :nerves_firmware, :cowboy, :exjsx],
+    [extra_applications: [:logger],
      mod: {Nerves.Firmware.HTTP, []}]
   end
 

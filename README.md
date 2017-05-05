@@ -10,7 +10,7 @@ on which this module depends.
 
 ## Installation/Usage
 
-Add nerves_firmware to your list of dependencies in `mix.exs` and a json library,
+Add nerves_firmware_http to your list of dependencies in `mix.exs` and a json library,
 by default you can use exjsx:
 ```elixir
   def deps do
@@ -36,12 +36,12 @@ And pass the module in your config
     json_opts: []
 ```
 
-
 That's all. Your firmware is now queriable and updatable over the network.
 
 ## Configuration
+
 In your app's config.exs, you can change a number of the default settings
-by setting keys on the `nerves_frirmware_http` application:
+by setting keys on the `nerves_firmware_http` application:
 
 | key            | default              |
 |----------------|----------------------|
@@ -67,7 +67,7 @@ You can stream the .fw files over the network to a device by using the nerves_fi
 
 `mix firmware.push 192.168.1.100 --target rpi0`
 
-### Some `CURL`ing excercises
+## Excercising the REST API with `curl`
 
 Getting Firmware Info:
 
