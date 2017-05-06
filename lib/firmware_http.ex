@@ -19,7 +19,6 @@ defmodule Nerves.Firmware.HTTP do
   |----------------|--------------------|----------------------------------------------------------------------|
   | :port          | 8988               |                                                                      |
   | :path          | "/firmware"        |                                                                      |
-  | :stage_file    | "/tmp/uploaded.fw" | Firmware will be uploaded here before install, and deleted afterward |
   | :json_provider | JSX                |                                                                      |
   | :json_opts     | []                 |                                                                      |
   | :timeout       | 120000             |                                                                      |
@@ -28,7 +27,6 @@ defmodule Nerves.Firmware.HTTP do
 
         config :nerves_firmware_http, port: 9999,
                                       path: "/services/firmware",
-                                      stage_file: "/my_tmp/new.fw",
                                       json_provider: Poison,
                                       json_opts: [space: 1, indent: 2],
                                       timeout: 240_000
