@@ -58,7 +58,7 @@ So, for instance, in your config.exs, you might do:
     port: 9999,
     path: "/services/firmware",
     json_provider: Poison,
-    json_opts: [space: 1, indent: 2]
+    json_opts: [space: 1, indent: 2],
     timeout: 240_000
 ```
 ## Using Firmware.Push

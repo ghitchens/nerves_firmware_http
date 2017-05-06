@@ -15,22 +15,20 @@ defmodule Nerves.Firmware.HTTP do
   In your app's config.exs, you can change a number of the default settings
   by setting keys on the `nerves_frirmware_http` application:
 
-  | key          | default              | comments                            |
-  |--------------|----------------------|-------------------------------------|
-  | :port   | 8988                 |                                     |
-  | :path   | "/firmware"          |                                     |
-  | :stage_file | "/tmp/uploaded.fw"   | Firmware will be uploaded here before install, and deleted afterward |
-  | :json_provider | JSX          |
-  | :json_opts     | []           | 
-  | :timeout       | 120000       |
+  | key            | default            | comments                                                             |
+  |----------------|--------------------|----------------------------------------------------------------------|
+  | :port          | 8988               |                                                                      |
+  | :path          | "/firmware"        |                                                                      |
+  | :json_provider | JSX                |                                                                      |
+  | :json_opts     | []                 |                                                                      |
+  | :timeout       | 120000             |                                                                      |
 
   So, for instance, in your config.exs, you might do:
 
         config :nerves_firmware_http, port: 9999,
                                       path: "/services/firmware",
-                                      stage_file: "/my_tmp/new.fw"
                                       json_provider: Poison,
-                                      json_opts: [space: 1, indent: 2]
+                                      json_opts: [space: 1, indent: 2],
                                       timeout: 240_000
   """
   @doc "Application start callback"
