@@ -18,7 +18,7 @@ defmodule Nerves.Firmware.HTTP.Mixfile do
 
   def application do
     [extra_applications: [:logger],
-     mod: {Nerves.Firmware.HTTP, []}]
+     mod: {Nerves.Firmware.HTTP.Application, []}]
   end
 
   defp docs do
