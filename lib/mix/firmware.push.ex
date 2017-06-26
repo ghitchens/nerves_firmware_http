@@ -51,6 +51,8 @@ defmodule Mix.Tasks.Firmware.Push do
 
     reboot = opts[:reboot] || true
     start_httpc()
+    :inet.gethostbyname ip
+
     url = "http://#{ip}:8988/firmware" |> String.to_char_list
     http_opts = [relaxed: true, autoredirect: true] #++ Nerves.Utils.Proxy.config(url)
     opts = [body_format: :binary]
@@ -66,6 +68,7 @@ defmodule Mix.Tasks.Firmware.Push do
     :inets.start(:httpc, profile: :nerves_firmware)
 
     opts = [
+      connect_timeout: 1_000,
       max_sessions: 8,
       max_keep_alive_length: 4,
       max_pipeline_length: 4,
@@ -89,7 +92,6 @@ defmodule Mix.Tasks.Firmware.Push do
 
   #find the firmware
 
-
   defp firmware(opts) do
     if fw = opts[:firmware] do
       fw |> Path.expand
@@ -99,13 +101,18 @@ defmodule Mix.Tasks.Firmware.Push do
   end
 
   defp discover_firmware(opts) do
-    target = opts[:target] || Mix.raise """
+    target = opts[:target] || System.get_env("MIX_TARGET") || Mix.raise """
     You must pass either firmware or target
     Examples:
-      $ mix firmware.push 192.168.1.100 --firmware path/to/app.fw
-      $ mix firmware.push 192.168.1.100 --target rpi3
+      $ export MIX_TARGET=rpi0
+      $ mix firmware.push rpi0.local
+    Or
+      $ mix firmware.push rpi0.local --firmware path/to/app.fw
+      $ mix firmware.push rpi0.local --target rpi0
     """
+
     project = Mix.Project.get
+
     :code.delete(project)
     :code.purge(project)
     level = Logger.level
@@ -114,15 +121,15 @@ defmodule Mix.Tasks.Firmware.Push do
     System.put_env("MIX_TARGET", target)
     Application.start(:mix)
     Logger.configure(level: level)
-    Mix.Project.in_project(project, File.cwd!, fn(_module) ->
 
+    Mix.Project.in_project(project, File.cwd!, fn(_module) ->
       target = Mix.Project.config[:target]
       app = Mix.Project.config[:app]
       images_path =
         (Mix.Project.config[:images_path] ||
         Path.join([Mix.Project.build_path, "nerves", "images"]) ||
         "_images/#{target}")
-      image = Path.join([images_path, "#{app}.fw"]) 
+      Path.join([images_path, "#{app}.fw"])
       |> Path.expand
     end)
   end
