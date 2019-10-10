@@ -28,19 +28,17 @@ defmodule Nerves.Firmware.HTTP.Test do
 
   test "returning proper status before and after firmware upgrade" do
     fw = firmware_file("test_1.fw")
-    # create the low level firmware file
-    assert :ok == Nerves.Firmware.Fwup.apply(fw, @device, :complete)
-    # now, test the firmware
+    # test the firmware
     assert get_firmware_state()[:status] == "active"
-    #now, try installing firmware upgrade
+    # now, try installing firmware upgrade
     metrics1 = read_firmware_metrics(@device)
-    assert metrics1 == read_firmware_metrics(@device)
     assert 204 = send_firmware(fw)
     metrics2 = read_firmware_metrics(@device)
     assert metrics1 != metrics2
     # now that we've update firmware, we should be in await_restart state
     assert get_firmware_state()[:status] == "await_restart"
     # this should fail with 403 since firmware is not yet rebooted
+    # this part of the test fails sometimes if the firmware has started rebooting already
     assert 403 = send_firmware(fw)
     metrics3 = read_firmware_metrics(@device)
     # and firmware should not be updated
