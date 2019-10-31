@@ -1,19 +1,16 @@
 defmodule Nerves.Firmware.HTTP.Transport do
-
   @moduledoc false
 
-  @max_upload_chunk 102400        # 100K max chunks to keep memory reasonable
-  @max_upload_size  4294967296     # 4Gb max file
+  # 100K max chunks to keep memory reasonable
+  @max_upload_chunk 102_400
+  # 4Gb max file
+  @max_upload_size 4_294_967_296
 
   alias Nerves.Firmware.Fwup
   require Logger
 
-  def init(_transport, _req, _state) do
-    {:upgrade, :protocol, :cowboy_rest}
-  end
-
-  def rest_init(req, handler_opts) do
-    {:ok, req, handler_opts}
+  def init(req, state) do
+    {:cowboy_rest, req, state}
   end
 
   def allowed_methods(req, state) do
@@ -21,20 +18,22 @@ defmodule Nerves.Firmware.HTTP.Transport do
   end
 
   def content_types_provided(req, state) do
-    {[ {"application/json", :json_provider} ], req, state}
+    {[{"application/json", :json_provider}], req, state}
   end
 
   def content_types_accepted(req, state) do
-    {[ {{"application", "x-firmware", []}, :upload_acceptor} ], req, state}
+    {[{{"application", "x-firmware", []}, :upload_acceptor}], req, state}
   end
 
   def json_provider(req, state) do
     mod = Application.get_env(:nerves_firmware_http, :json_provider, JSX)
     opts = Application.get_env(:nerves_firmware_http, :json_opts, [])
+
     {:ok, body} =
-      Nerves.Firmware.state
+      Nerves.Firmware.state()
       |> mod.encode(opts)
-    { body <> "\n", req, state}
+
+    {body <> "\n", req, state}
   end
 
   @doc """
@@ -45,12 +44,13 @@ defmodule Nerves.Firmware.HTTP.Transport do
   Won't let you upload firmware on top of provisional (returns 403)
   """
   def upload_acceptor(req, state) do
-		Logger.info "request to receive firmware"
-    if Nerves.Firmware.allow_upgrade? do
+    Logger.info("request to receive firmware")
+
+    if Nerves.Firmware.allow_upgrade?() do
       upload_and_apply_firmware_upgrade(req, state)
     else
       {:halt, reply_with(403, req), state}
-		end
+    end
   end
 
   # TODO:  Ideally we'd like to allow streaming directly to fwup, but its hard
@@ -61,21 +61,24 @@ defmodule Nerves.Firmware.HTTP.Transport do
     {:ok, pid} = Fwup.start_link()
     stream_fw(pid, req)
     if Process.alive?(pid), do: Fwup.stop(pid)
-    Logger.info "firmware received"
     Nerves.Firmware.finalize()
-    case :cowboy_req.header("x-reboot", req) do
-      {:undefined, _} ->  nil
-      {_, _} ->
+    Logger.info("firmware received")
+
+    case :cowboy_req.header("x-reboot", req, nil) do
+      nil ->
+        nil
+
+      _ ->
         reply_with(200, req)
-        Nerves.Firmware.reboot
+        Nerves.Firmware.reboot()
     end
+
     {true, req, state}
   end
 
   # helper to return errors to requests from cowboy more easily
   defp reply_with(code, req) do
-    {:ok, req} = :cowboy_req.reply(code, [], req)
-    req
+    :cowboy_req.reply(code, req)
   end
 
   # copy from a cowboy req into a IO.Stream
@@ -84,10 +87,11 @@ defmodule Nerves.Firmware.HTTP.Transport do
     if count > @max_upload_size do
       {:error, :too_large}
     else
-      case :cowboy_req.body(req, [:length, @max_upload_chunk]) do
+      case :cowboy_req.read_body(req, %{length: @max_upload_chunk}) do
         {:more, chunk, new_req} ->
           Fwup.stream_chunk(pid, chunk)
-          stream_fw(pid, new_req, (count + byte_size(chunk)))
+          stream_fw(pid, new_req, count + byte_size(chunk))
+
         {:ok, chunk, new_req} ->
           Fwup.stream_chunk(pid, chunk, await: true)
           {:done, new_req}

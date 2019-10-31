@@ -22,8 +22,11 @@ defmodule Nerves.Firmware.HTTP.Application do
     port = Application.get_env(:nerves_firmware_http, :port, 8988)
     path = Application.get_env(:nerves_firmware_http, :path, "/firmware")
     timeout = Application.get_env(:nerves_firmware_http, :timeout, 120_000)
-    dispatch = :cowboy_router.compile [{:_,[{path, Nerves.Firmware.HTTP.Transport, []}]}]
-    :cowboy.start_http(__MODULE__, 10, [port: port], [env: [dispatch: dispatch], timeout: timeout])
-  end
+    dispatch = :cowboy_router.compile([{:_, [{path, Nerves.Firmware.HTTP.Transport, []}]}])
 
+    :cowboy.start_clear(:nerves_http_transport, [{:port, port}], %{
+      request_timeout: timeout,
+      env: %{dispatch: dispatch}
+    })
+  end
 end
